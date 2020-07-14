@@ -1,10 +1,11 @@
 import sys
+import time
 from scapy.all import *
 
 def get_packet():
 	packet = Dot11(
-	    	 	addr1="00:00:" + get_if_hwaddr("wlan0")[:-6],
-	    	 	addr2=get_if_hwaddr("wlan0")[12:] + ":57:12:34:56",
+	    	 	addr1="00:00:" + get_if_hwaddr(max(get_if_list()))[:-6],
+	    	 	addr2=get_if_hwaddr(max(get_if_list()))[12:] + ":57:12:34:56",
 	    	 	addr3="00:00:00:00:00:00"
 	    	 ) / Dot11AssoReq(
 	        		cap=0x1100, listen_interval=0x00a
@@ -30,7 +31,9 @@ def main():
 	packet.show()
 	try:
 		for _ in range(int(sys.argv[1])):
-			sendp(packet, iface="wlan0")
+			if sys.argv[3]:
+				time.sleep(float(sys.argv[3]))
+			sendp(packet, iface=max(get_if_list()))
 	except ValueError:
 		sys.exit("arg1 can be only: <int>")
 	
